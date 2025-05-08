@@ -3,61 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Image to Text (OCR)</title>
+  <title>OCR Vision</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       darkMode: 'class'
     };
   </script>
-</head>
-<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100 transition-colors">
-  <div class="max-w-4xl mx-auto p-6 mt-10 bg-white dark:bg-gray-800 rounded-2xl shadow-lg">
-    <div class="flex justify-between items-center mb-6">
-      <h2 class="text-2xl font-bold text-orange-500 dark:text-orange-400">Image to Text Converter</h2>
-      <button id="darkToggle" class="px-3 py-1 rounded bg-gray-200 dark:bg-gray-700 text-sm">
-        Toggle Dark Mode
-      </button>
-    </div>
-
-    <p class="mb-6 text-center text-sm">Upload a handwritten or printed image to extract text using TrOCR.</p>
-
-    <!-- Upload Zone -->
-    <div class="grid md:grid-cols-2 gap-6">
-      <div>
-        <label for="imageInput" class="block mb-2">Upload Image</label>
-        <div id="dropZone" class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer bg-gray-50 dark:bg-gray-700 hover:border-orange-400 transition">
-          <p>Drag & drop image here, or click to upload</p>
-          <input type="file" id="imageInput" accept="image/*" class="hidden" />
-        </div>
-        <img id="imagePreview" alt="Preview" class="mt-4 hidden rounded shadow max-h-64 mx-auto" />
-      </div>
-
-      <!-- Result -->
-      <div>
-        <label for="resultBox" class="block mb-2">Output</label>
-        <textarea id="resultBox" readonly class="w-full h-64 p-4 bg-gray-100 dark:bg-gray-900 border rounded resize-none"></textarea>
-        <button id="copyBtn" class="mt-2 w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded">
-          Copy to Clipboard
-        </button>
-      </div>
-    </div>
-
-    <!-- Loader -->
-    <div id="loader" class="loader mt-6 hidden mx-auto"></div>
-
-    <!-- Action Buttons -->
-    <div class="mt-6 flex justify-center gap-4">
-      <button id="clearBtn" class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 py-2 px-6 rounded">
-        Clear
-      </button>
-      <button id="submitBtn" class="bg-orange-500 hover:bg-orange-600 text-white py-2 px-6 rounded">
-        Submit
-      </button>
-    </div>
-  </div>
-
-  <!-- Styles -->
   <style>
     .loader {
       border: 6px solid #f3f3f3;
@@ -71,7 +23,69 @@
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
+    textarea::-webkit-scrollbar {
+      width: 8px;
+    }
+    textarea::-webkit-scrollbar-thumb {
+      background-color: #fa7c28;
+      border-radius: 8px;
+    }
   </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100 transition-colors">
+
+  <div class="max-w-4xl mx-auto p-6 mt-10 bg-white dark:bg-gray-800 rounded-2xl shadow-lg">
+    <div class="flex justify-between items-center mb-6">
+      <div class="flex items-center gap-3">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtKS4oPct5slVPt_QmiXdKTvEHhR3b4ff8TQ&s" alt="UIT Logo" class="h-10 w-auto">
+
+        <h2 class="text-2xl font-bold text-orange-500 dark:text-blue-500">OCR Vision</h2>
+      </div>
+      <button id="darkToggle" class="px-3 py-1 rounded bg-gray-200 dark:bg-gray-700 text-sm">Toggle Dark Mode</button>
+    </div>
+
+    <p class="mb-6 text-center text-sm">Upload a handwritten or printed image to extract text using TrOCR.</p>
+
+    <!-- Upload Zone -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <label for="imageInput" class="block mb-2 font-medium">Upload Image</label>
+        <div id="dropZone" class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer bg-gray-50 dark:bg-gray-700 hover:border-orange-400 transition relative">
+          <svg class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-300 mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 16v-8m0 0L8 12m4-4l4 4m6 4a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p class="text-sm">Drag & drop or click to upload an image</p>
+          <input type="file" id="imageInput" accept="image/*" class="hidden" />
+        </div>
+        <img id="imagePreview" alt="Preview" class="mt-4 hidden rounded-lg shadow-lg transition-transform transform hover:scale-105 max-h-64 mx-auto" />
+      </div>
+
+      <!-- Result -->
+      <div>
+        <label for="resultBox" class="block mb-2 font-medium">Output</label>
+        <textarea id="resultBox" readonly class="w-full h-64 p-4 bg-gray-100 dark:bg-gray-900 border rounded resize-none text-sm"></textarea>
+        <button id="copyBtn" class="mt-2 w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded">
+          Copy to Clipboard
+        </button>
+      </div>
+    </div>
+
+    <!-- Loader -->
+    <div id="loader" class="loader mt-6 hidden mx-auto"></div>
+
+    <!-- Action Buttons -->
+    <div class="mt-6 flex flex-col sm:flex-row justify-center gap-4">
+      <button id="clearBtn" class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 py-2 px-6 rounded">
+        Clear
+      </button>
+      <button id="submitBtn" class="bg-orange-500 hover:bg-orange-600 text-white py-2 px-6 rounded">
+        Submit
+      </button>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="fixed bottom-5 right-5 bg-orange-500 text-white px-4 py-2 rounded-lg shadow-lg hidden transition-opacity"></div>
 
   <!-- Script -->
   <script type="module">
@@ -86,6 +100,14 @@
     const dropZone = document.getElementById("dropZone");
     const copyBtn = document.getElementById("copyBtn");
     const darkToggle = document.getElementById("darkToggle");
+    const toast = document.getElementById("toast");
+
+    // Toast
+    function showToast(msg) {
+      toast.textContent = msg;
+      toast.classList.remove("hidden");
+      setTimeout(() => toast.classList.add("hidden"), 2000);
+    }
 
     // Dark mode toggle
     darkToggle.addEventListener("click", () => {
@@ -105,13 +127,15 @@
       e.preventDefault();
       dropZone.classList.remove("border-orange-400");
       const file = e.dataTransfer.files[0];
-      if (file) {
+      if (file && file.type.startsWith("image/")) {
         imageInput.files = e.dataTransfer.files;
         previewImage(file);
+      } else {
+        showToast("Please drop a valid image file.");
       }
     });
 
-    // Manual input change
+    // File input change
     imageInput.addEventListener("change", () => {
       const file = imageInput.files[0];
       if (file) previewImage(file);
@@ -126,7 +150,7 @@
       reader.readAsDataURL(file);
     }
 
-    // Clear
+    // Clear everything
     clearBtn.addEventListener("click", () => {
       imageInput.value = null;
       imagePreview.src = "";
@@ -134,22 +158,22 @@
       resultBox.value = "";
     });
 
-    // Copy result
+    // Copy result to clipboard
     copyBtn.addEventListener("click", async () => {
       try {
         await navigator.clipboard.writeText(resultBox.value);
         copyBtn.textContent = "Copied!";
         setTimeout(() => (copyBtn.textContent = "Copy to Clipboard"), 1500);
       } catch {
-        alert("Failed to copy text.");
+        showToast("Failed to copy text.");
       }
     });
 
-    // Submit to Gradio
+    // Submit
     submitBtn.addEventListener("click", async () => {
       const file = imageInput.files[0];
       if (!file) {
-        alert("Please upload an image first.");
+        showToast("Please upload an image first.");
         return;
       }
 
@@ -157,12 +181,13 @@
       resultBox.value = "";
 
       try {
-        const client = await Client.connect("MQAnh/DSAproject"); // Replace if needed
+        const client = await Client.connect("MQAnh/DSAproject"); // Update if needed
         const result = await client.predict("/predict", { image: file });
         resultBox.value = result.data;
       } catch (err) {
         console.error(err);
         resultBox.value = "Prediction failed.";
+        showToast("Error during prediction.");
       } finally {
         loader.classList.add("hidden");
       }

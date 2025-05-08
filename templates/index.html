@@ -1,130 +1,93 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Image to Text (OCR)</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OCR Vision</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class'
+    };
+  </script>
   <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      padding: 2rem;
-      background-color: #f3f4f6;
-      color: #333;
+    .loader {
+      border: 6px solid #f3f3f3;
+      border-top: 6px solid #fa7c28;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
     }
-
-    h2 {
-      margin-bottom: 1rem;
-      text-align: center;
-      color: #fa7c28;
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
     }
-
-    .container {
-      max-width: 900px;
-      margin: auto;
-      background-color: white;
-      padding: 2rem;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    textarea::-webkit-scrollbar {
+      width: 8px;
     }
-
-    .row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 2rem;
-    }
-
-    .column {
-      flex: 1;
-      min-width: 300px;
-    }
-
-    #imagePreview {
-      width: 100%;
-      max-height: 400px;
-      object-fit: contain;
-      border: 2px dashed #ccc;
-      display: none;
-      margin-top: 1rem;
-      border-radius: 8px;
-    }
-
-    textarea {
-      width: 100%;
-      height: 400px;
-      resize: none;
-      padding: 1rem;
-      font-size: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      background-color: #f9f9f9;
-    }
-
-    .buttons {
-      margin-top: 1rem;
-      display: flex;
-      gap: 1rem;
-      justify-content: center;
-    }
-
-    button {
-      padding: 0.8rem 2rem;
-      font-size: 1rem;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background-color 0.3s, transform 0.2s;
-    }
-
-    #submitBtn {
+    textarea::-webkit-scrollbar-thumb {
       background-color: #fa7c28;
-      color: white;
-    }
-
-    #submitBtn:hover {
-      background-color: #e06b20;
-      transform: scale(1.05);
-    }
-
-    #clearBtn {
-      background-color: #eee;
-      color: #333;
-    }
-
-    #clearBtn:hover {
-      background-color: #ddd;
-      transform: scale(1.05);
-    }
-
-    @media (max-width: 768px) {
-      .row {
-        flex-direction: column;
-      }
+      border-radius: 8px;
     }
   </style>
 </head>
-<body>
-  <div class="container">
-    <h2>Image to Text (OCR)</h2>
-    <p style="text-align: center;">Upload a handwritten or printed image to extract text using TrOCR.</p>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100 transition-colors">
 
-    <div class="row">
-      <div class="column">
-        <input type="file" id="imageInput" accept="image/*">
-        <img id="imagePreview" alt="Preview">
+  <div class="max-w-4xl mx-auto p-6 mt-10 bg-white dark:bg-gray-800 rounded-2xl shadow-lg">
+    <div class="flex justify-between items-center mb-6">
+      <div class="flex items-center gap-3">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtKS4oPct5slVPt_QmiXdKTvEHhR3b4ff8TQ&s" alt="UIT Logo" class="h-10 w-auto">
+
+        <h2 class="text-2xl font-bold text-orange-500 dark:text-blue-500">OCR Vision</h2>
+      </div>
+      <button id="darkToggle" class="px-3 py-1 rounded bg-gray-200 dark:bg-gray-700 text-sm">Toggle Dark Mode</button>
+    </div>
+
+    <p class="mb-6 text-center text-sm">Upload a handwritten or printed image to extract text using TrOCR.</p>
+
+    <!-- Upload Zone -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <label for="imageInput" class="block mb-2 font-medium">Upload Image</label>
+        <div id="dropZone" class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer bg-gray-50 dark:bg-gray-700 hover:border-orange-400 transition relative">
+          <svg class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-300 mb-2" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 16v-8m0 0L8 12m4-4l4 4m6 4a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p class="text-sm">Drag & drop or click to upload an image</p>
+          <input type="file" id="imageInput" accept="image/*" class="hidden" />
+        </div>
+        <img id="imagePreview" alt="Preview" class="mt-4 hidden rounded-lg shadow-lg transition-transform transform hover:scale-105 max-h-64 mx-auto" />
       </div>
 
-      <div class="column">
-        <label for="resultBox">Output</label>
-        <textarea id="resultBox" readonly></textarea>
+      <!-- Result -->
+      <div>
+        <label for="resultBox" class="block mb-2 font-medium">Output</label>
+        <textarea id="resultBox" readonly class="w-full h-64 p-4 bg-gray-100 dark:bg-gray-900 border rounded resize-none text-sm"></textarea>
+        <button id="copyBtn" class="mt-2 w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded">
+          Copy to Clipboard
+        </button>
       </div>
     </div>
 
-    <div class="buttons">
-      <button id="clearBtn">Clear</button>
-      <button id="submitBtn">Submit</button>
+    <!-- Loader -->
+    <div id="loader" class="loader mt-6 hidden mx-auto"></div>
+
+    <!-- Action Buttons -->
+    <div class="mt-6 flex flex-col sm:flex-row justify-center gap-4">
+      <button id="clearBtn" class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 py-2 px-6 rounded">
+        Clear
+      </button>
+      <button id="submitBtn" class="bg-orange-500 hover:bg-orange-600 text-white py-2 px-6 rounded">
+        Submit
+      </button>
     </div>
   </div>
 
+  <!-- Toast -->
+  <div id="toast" class="fixed bottom-5 right-5 bg-orange-500 text-white px-4 py-2 rounded-lg shadow-lg hidden transition-opacity"></div>
+
+  <!-- Script -->
   <script type="module">
     import { Client } from "https://esm.sh/@gradio/client";
 
@@ -133,46 +96,129 @@
     const resultBox = document.getElementById("resultBox");
     const clearBtn = document.getElementById("clearBtn");
     const submitBtn = document.getElementById("submitBtn");
+    const loader = document.getElementById("loader");
+    const dropZone = document.getElementById("dropZone");
+    const copyBtn = document.getElementById("copyBtn");
+    const darkToggle = document.getElementById("darkToggle");
+    const toast = document.getElementById("toast");
 
-    // Load image preview
-    imageInput.addEventListener("change", () => {
-      const file = imageInput.files[0];
-      if (file) {
-        const reader = new FileReader();
-        reader.onload = e => {
-          imagePreview.src = e.target.result;
-          imagePreview.style.display = "block";
-        };
-        reader.readAsDataURL(file);
+    // Toast
+    function showToast(msg) {
+      toast.textContent = msg;
+      toast.classList.remove("hidden");
+      setTimeout(() => toast.classList.add("hidden"), 2000);
+    }
+
+    // Dark mode toggle
+    darkToggle.addEventListener("click", () => {
+      document.documentElement.classList.toggle("dark");
+    });
+
+    // Drag and drop handlers
+    dropZone.addEventListener("click", () => imageInput.click());
+    dropZone.addEventListener("dragover", e => {
+      e.preventDefault();
+      dropZone.classList.add("border-orange-400");
+    });
+    dropZone.addEventListener("dragleave", () => {
+      dropZone.classList.remove("border-orange-400");
+    });
+    dropZone.addEventListener("drop", e => {
+      e.preventDefault();
+      dropZone.classList.remove("border-orange-400");
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith("image/")) {
+        imageInput.files = e.dataTransfer.files;
+        previewImage(file);
+      } else {
+        showToast("Please drop a valid image file.");
       }
     });
 
-    // Clear input/output
+    // File input change
+    imageInput.addEventListener("change", () => {
+      const file = imageInput.files[0];
+      if (file) previewImage(file);
+    });
+
+    function previewImage(file) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        imagePreview.src = e.target.result;
+        imagePreview.classList.remove("hidden");
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Clear everything
     clearBtn.addEventListener("click", () => {
       imageInput.value = null;
       imagePreview.src = "";
-      imagePreview.style.display = "none";
+      imagePreview.classList.add("hidden");
       resultBox.value = "";
     });
 
-    // Submit image to Gradio app
+    // Copy result to clipboard
+    copyBtn.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(resultBox.value);
+        copyBtn.textContent = "Copied!";
+        setTimeout(() => (copyBtn.textContent = "Copy to Clipboard"), 1500);
+      } catch {
+        showToast("Failed to copy text.");
+      }
+    });
+
+    // Submit
     submitBtn.addEventListener("click", async () => {
       const file = imageInput.files[0];
       if (!file) {
-        alert("Please upload an image first.");
+        showToast("Please upload an image first.");
         return;
       }
 
+      loader.classList.remove("hidden");
+      resultBox.value = "";
+
       try {
-        resultBox.value = "Predicting...";
-        const client = await Client.connect("MQAnh/DSAproject"); // Replace with your Gradio app
+        const client = await Client.connect("MQAnh/DSAproject"); // Update if needed
         const result = await client.predict("/predict", { image: file });
         resultBox.value = result.data;
       } catch (err) {
         console.error(err);
         resultBox.value = "Prediction failed.";
+        showToast("Error during prediction.");
+      } finally {
+        loader.classList.add("hidden");
       }
     });
   </script>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-gray-100 py-6 mt-10">
+    <div class="max-w-4xl mx-auto text-center">
+      <!-- Logo and Project Info -->
+      <div class="mb-4">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTtKS4oPct5slVPt_QmiXdKTvEHhR3b4ff8TQ&s" alt="UIT Logo" class="h-10 w-auto mx-auto mb-2">
+        <p class="text-sm">Project by <strong>MQAnh</strong></p>
+      </div>
+      
+      <!-- Social Media Links (optional) -->
+      <div class="flex justify-center gap-4 mb-4">
+        <a href="#" target="_blank" class="text-blue-400 hover:text-blue-500 transition-colors">
+          <i class="fab fa-facebook-f"></i> <!-- Add Font Awesome icon -->
+        </a>
+        <a href="#" target="_blank" class="text-blue-400 hover:text-blue-500 transition-colors">
+          <i class="fab fa-twitter"></i> <!-- Add Font Awesome icon -->
+        </a>
+        <a href="#" target="_blank" class="text-blue-400 hover:text-blue-500 transition-colors">
+          <i class="fab fa-linkedin-in"></i> <!-- Add Font Awesome icon -->
+        </a>
+      </div>
+
+      <!-- Copyright Notice -->
+      <p class="text-xs text-gray-400">© 2025 UIT. All rights reserved.</p>
+    </div>
+  </footer>
 </body>
 </html>

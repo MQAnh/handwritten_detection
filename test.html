@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Image to Text (OCR)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class'
+    };
+  </script>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100 transition-colors">
+  <div class="max-w-4xl mx-auto p-6 mt-10 bg-white dark:bg-gray-800 rounded-2xl shadow-lg">
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-2xl font-bold text-orange-500 dark:text-orange-400">Image to Text Converter</h2>
+      <button id="darkToggle" class="px-3 py-1 rounded bg-gray-200 dark:bg-gray-700 text-sm">
+        Toggle Dark Mode
+      </button>
+    </div>
+
+    <p class="mb-6 text-center text-sm">Upload a handwritten or printed image to extract text using TrOCR.</p>
+
+    <!-- Upload Zone -->
+    <div class="grid md:grid-cols-2 gap-6">
+      <div>
+        <label for="imageInput" class="block mb-2">Upload Image</label>
+        <div id="dropZone" class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer bg-gray-50 dark:bg-gray-700 hover:border-orange-400 transition">
+          <p>Drag & drop image here, or click to upload</p>
+          <input type="file" id="imageInput" accept="image/*" class="hidden" />
+        </div>
+        <img id="imagePreview" alt="Preview" class="mt-4 hidden rounded shadow max-h-64 mx-auto" />
+      </div>
+
+      <!-- Result -->
+      <div>
+        <label for="resultBox" class="block mb-2">Output</label>
+        <textarea id="resultBox" readonly class="w-full h-64 p-4 bg-gray-100 dark:bg-gray-900 border rounded resize-none"></textarea>
+        <button id="copyBtn" class="mt-2 w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded">
+          Copy to Clipboard
+        </button>
+      </div>
+    </div>
+
+    <!-- Loader -->
+    <div id="loader" class="loader mt-6 hidden mx-auto"></div>
+
+    <!-- Action Buttons -->
+    <div class="mt-6 flex justify-center gap-4">
+      <button id="clearBtn" class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 py-2 px-6 rounded">
+        Clear
+      </button>
+      <button id="submitBtn" class="bg-orange-500 hover:bg-orange-600 text-white py-2 px-6 rounded">
+        Submit
+      </button>
+    </div>
+  </div>
+
+  <!-- Styles -->
+  <style>
+    .loader {
+      border: 6px solid #f3f3f3;
+      border-top: 6px solid #fa7c28;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+
+  <!-- Script -->
+  <script type="module">
+    import { Client } from "https://esm.sh/@gradio/client";
+
+    const imageInput = document.getElementById("imageInput");
+    const imagePreview = document.getElementById("imagePreview");
+    const resultBox = document.getElementById("resultBox");
+    const clearBtn = document.getElementById("clearBtn");
+    const submitBtn = document.getElementById("submitBtn");
+    const loader = document.getElementById("loader");
+    const dropZone = document.getElementById("dropZone");
+    const copyBtn = document.getElementById("copyBtn");
+    const darkToggle = document.getElementById("darkToggle");
+
+    // Dark mode toggle
+    darkToggle.addEventListener("click", () => {
+      document.documentElement.classList.toggle("dark");
+    });
+
+    // Drag and drop handlers
+    dropZone.addEventListener("click", () => imageInput.click());
+    dropZone.addEventListener("dragover", e => {
+      e.preventDefault();
+      dropZone.classList.add("border-orange-400");
+    });
+    dropZone.addEventListener("dragleave", () => {
+      dropZone.classList.remove("border-orange-400");
+    });
+    dropZone.addEventListener("drop", e => {
+      e.preventDefault();
+      dropZone.classList.remove("border-orange-400");
+      const file = e.dataTransfer.files[0];
+      if (file) {
+        imageInput.files = e.dataTransfer.files;
+        previewImage(file);
+      }
+    });
+
+    // Manual input change
+    imageInput.addEventListener("change", () => {
+      const file = imageInput.files[0];
+      if (file) previewImage(file);
+    });
+
+    function previewImage(file) {
+      const reader = new FileReader();
+      reader.onload = e => {
+        imagePreview.src = e.target.result;
+        imagePreview.classList.remove("hidden");
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Clear
+    clearBtn.addEventListener("click", () => {
+      imageInput.value = null;
+      imagePreview.src = "";
+      imagePreview.classList.add("hidden");
+      resultBox.value = "";
+    });
+
+    // Copy result
+    copyBtn.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(resultBox.value);
+        copyBtn.textContent = "Copied!";
+        setTimeout(() => (copyBtn.textContent = "Copy to Clipboard"), 1500);
+      } catch {
+        alert("Failed to copy text.");
+      }
+    });
+
+    // Submit to Gradio
+    submitBtn.addEventListener("click", async () => {
+      const file = imageInput.files[0];
+      if (!file) {
+        alert("Please upload an image first.");
+        return;
+      }
+
+      loader.classList.remove("hidden");
+      resultBox.value = "";
+
+      try {
+        const client = await Client.connect("MQAnh/DSAproject"); // Replace if needed
+        const result = await client.predict("/predict", { image: file });
+        resultBox.value = result.data;
+      } catch (err) {
+        console.error(err);
+        resultBox.value = "Prediction failed.";
+      } finally {
+        loader.classList.add("hidden");
+      }
+    });
+  </script>
+</body>
+</html>

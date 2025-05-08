@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image to Text (OCR)</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      padding: 2rem;
+      background-color: #f3f4f6;
+      color: #333;
+    }
+
+    h2 {
+      margin-bottom: 1rem;
+      text-align: center;
+      color: #fa7c28;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      background-color: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2rem;
+    }
+
+    .column {
+      flex: 1;
+      min-width: 300px;
+    }
+
+    #imagePreview {
+      width: 100%;
+      max-height: 400px;
+      object-fit: contain;
+      border: 2px dashed #ccc;
+      display: none;
+      margin-top: 1rem;
+      border-radius: 8px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 400px;
+      resize: none;
+      padding: 1rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background-color: #f9f9f9;
+    }
+
+    .buttons {
+      margin-top: 1rem;
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+    }
+
+    button {
+      padding: 0.8rem 2rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.2s;
+    }
+
+    #submitBtn {
+      background-color: #fa7c28;
+      color: white;
+    }
+
+    #submitBtn:hover {
+      background-color: #e06b20;
+      transform: scale(1.05);
+    }
+
+    #clearBtn {
+      background-color: #eee;
+      color: #333;
+    }
+
+    #clearBtn:hover {
+      background-color: #ddd;
+      transform: scale(1.05);
+    }
+
+    @media (max-width: 768px) {
+      .row {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Image to Text (OCR)</h2>
+    <p style="text-align: center;">Upload a handwritten or printed image to extract text using TrOCR.</p>
+
+    <div class="row">
+      <div class="column">
+        <input type="file" id="imageInput" accept="image/*">
+        <img id="imagePreview" alt="Preview">
+      </div>
+
+      <div class="column">
+        <label for="resultBox">Output</label>
+        <textarea id="resultBox" readonly></textarea>
+      </div>
+    </div>
+
+    <div class="buttons">
+      <button id="clearBtn">Clear</button>
+      <button id="submitBtn">Submit</button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { Client } from "https://esm.sh/@gradio/client";
+
+    const imageInput = document.getElementById("imageInput");
+    const imagePreview = document.getElementById("imagePreview");
+    const resultBox = document.getElementById("resultBox");
+    const clearBtn = document.getElementById("clearBtn");
+    const submitBtn = document.getElementById("submitBtn");
+
+    // Load image preview
+    imageInput.addEventListener("change", () => {
+      const file = imageInput.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = e => {
+          imagePreview.src = e.target.result;
+          imagePreview.style.display = "block";
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Clear input/output
+    clearBtn.addEventListener("click", () => {
+      imageInput.value = null;
+      imagePreview.src = "";
+      imagePreview.style.display = "none";
+      resultBox.value = "";
+    });
+
+    // Submit image to Gradio app
+    submitBtn.addEventListener("click", async () => {
+      const file = imageInput.files[0];
+      if (!file) {
+        alert("Please upload an image first.");
+        return;
+      }
+
+      try {
+        resultBox.value = "Predicting...";
+        const client = await Client.connect("MQAnh/DSAproject"); // Replace with your Gradio app
+        const result = await client.predict("/predict", { image: file });
+        resultBox.value = result.data;
+      } catch (err) {
+        console.error(err);
+        resultBox.value = "Prediction failed.";
+      }
+    });
+  </script>
+</body>
+</html>

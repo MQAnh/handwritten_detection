@@ -1,5 +1,4 @@
-
-    import { Client } from "https://esm.sh/@gradio/client";
+import { Client } from "https://esm.sh/@gradio/client";
 
     const imageInput = document.getElementById("imageInput");
     const imagePreview = document.getElementById("imagePreview");
@@ -12,6 +11,12 @@
     const darkToggle = document.getElementById("darkToggle");
     const toast = document.getElementById("toast");
     const downloadPdfBtn = document.getElementById("downloadPdfBtn");
+    // Feedback Modal Logic
+    const feedbackBtn = document.getElementById('feedbackBtn');
+    const feedbackSection = document.getElementById('feedbackSection');
+    const cancelFeedbackBtn = document.getElementById('cancelFeedbackBtn');
+    const feedbackForm = document.getElementById('feedbackForm');
+    const feedbackInput = document.getElementById('feedbackInput');
     
 
     const supabaseUrl = "https://unckftabafxwbwgeifrb.supabase.co"; // Replace with your Supabase project URL
@@ -79,6 +84,8 @@
       }
     });
 
+    let publicUrl = ""; // Declare publicUrl variable
+
     submitBtn.addEventListener("click", async () => {
         const file = imageInput.files[0];
         if (!file) {
@@ -88,6 +95,9 @@
 
         loader.classList.remove("hidden");
         resultBox.value = "";
+        feedbackBtn.classList.add("hidden");
+        feedbackInput.value = ''; // Clear input
+
 
         try {
             // Upload the image to Supabase storage
@@ -108,20 +118,53 @@
 
             if (publicUrlError) throw publicUrlError;
 
-            const publicUrl = publicUrlData.publicUrl;
-            
+            publicUrl = publicUrlData.publicUrl;
+
             console.log("Image uploaded successfully:", publicUrl);
 
             // Use the uploaded image URL for further processing
             const client = await Client.connect("MQAnh/DSAproject");
             const result = await client.predict("/predict", { image: file });
             resultBox.value = result.data;
+
+            feedbackBtn.classList.remove("hidden");
         } catch (err) {
             console.error(err);
             resultBox.value = "Prediction failed.";
             showToast("Error during prediction.");
         } finally {
             loader.classList.add("hidden");
+        }
+    });
+
+    feedbackForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const feedback = feedbackInput.value.trim();
+        if (feedback) {
+            try {
+                // Insert feedback and publicUrl into Supabase database
+                const { data, error } = await supabases
+                    .from("database") // Replace "feedback" with your table name
+                    .insert([
+                        {
+                            images: publicUrl, // Store the public URL
+                            labels: feedback, // Store the feedback
+                        },
+                    ]);
+
+                if (error) {
+                    throw error;
+                }
+
+                alert("Thank you for your feedback!");
+                feedbackSection.classList.add("hidden");
+                feedbackInput.value = ''; // Clear input
+            } catch (err) {
+                console.error("Error storing feedback:", err);
+                alert("Failed to store feedback. Please try again.");
+            }
+        } else {
+            alert("Please enter your feedback before submitting.");
         }
     });
 
@@ -143,4 +186,29 @@
         document.body.insertAdjacentHTML("beforeend", data);
         })
         .catch(error => console.error("Error loading footer:", error));
+    });
+
+    
+
+    feedbackBtn.addEventListener('click', () => {
+      feedbackSection.classList.remove('hidden');
+    });
+
+    cancelFeedbackBtn.addEventListener('click', () => {
+      feedbackSection.classList.add('hidden');
+      feedbackInput.value = ''; // Clear input
+    });
+
+    feedbackForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const feedback = feedbackInput.value.trim();
+      if (feedback) {
+        alert('Thank you for your feedback!');
+        feedbackSection.classList.add('hidden');
+        feedbackInput.value = ''; // Clear input
+        // Optionally, send feedback to a server using fetch or AJAX
+        // fetch('/submit-feedback', { method: 'POST', body: JSON.stringify({ feedback }), headers: { 'Content-Type': 'application/json' } });
+      } else {
+        alert('Please enter your feedback before submitting.');
+      }
     });

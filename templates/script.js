@@ -12,6 +12,11 @@
     const darkToggle = document.getElementById("darkToggle");
     const toast = document.getElementById("toast");
     const downloadPdfBtn = document.getElementById("downloadPdfBtn");
+    
+
+    const supabaseUrl = "https://unckftabafxwbwgeifrb.supabase.co"; // Replace with your Supabase project URL
+    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVuY2tmdGFiYWZ4d2J3Z2VpZnJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDcxMzMyNzcsImV4cCI6MjA2MjcwOTI3N30.3OoIOiu5B7UeAkrg7kj4SDvGccWNioIHw9Xt_5IV1X4"; // Replace with your Supabase API key
+    const supabases = supabase.createClient(supabaseUrl, supabaseKey);
 
     function showToast(msg) {
       toast.textContent = msg;
@@ -75,26 +80,49 @@
     });
 
     submitBtn.addEventListener("click", async () => {
-      const file = imageInput.files[0];
-      if (!file) {
-        showToast("Please upload an image first.");
-        return;
-      }
+        const file = imageInput.files[0];
+        if (!file) {
+            showToast("Please upload an image first.");
+            return;
+        }
 
-      loader.classList.remove("hidden");
-      resultBox.value = "";
+        loader.classList.remove("hidden");
+        resultBox.value = "";
 
-      try {
-        const client = await Client.connect("MQAnh/DSAproject");
-        const result = await client.predict("/predict", { image: file });
-        resultBox.value = result.data;
-      } catch (err) {
-        console.error(err);
-        resultBox.value = "Prediction failed.";
-        showToast("Error during prediction.");
-      } finally {
-        loader.classList.add("hidden");
-      }
+        try {
+            // Upload the image to Supabase storage
+            const fileName = `${Date.now()}-${file.name}`;
+            const { data, error } = await supabases.storage
+                .from("images") // Replace "images" with your Supabase storage bucket name
+                .upload(fileName, file);
+
+            if (error) {
+                throw error;
+            }
+
+            // Get the public URL of the uploaded image
+            const { data: publicUrlData, error: publicUrlError } = supabases
+                .storage
+                .from("images")
+                .getPublicUrl(fileName);
+
+            if (publicUrlError) throw publicUrlError;
+
+            const publicUrl = publicUrlData.publicUrl;
+            
+            console.log("Image uploaded successfully:", publicUrl);
+
+            // Use the uploaded image URL for further processing
+            const client = await Client.connect("MQAnh/DSAproject");
+            const result = await client.predict("/predict", { image: file });
+            resultBox.value = result.data;
+        } catch (err) {
+            console.error(err);
+            resultBox.value = "Prediction failed.";
+            showToast("Error during prediction.");
+        } finally {
+            loader.classList.add("hidden");
+        }
     });
 
     // ✅ Download as PDF feature

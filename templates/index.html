@@ -10,28 +10,7 @@
       darkMode: 'class'
     };
   </script>
-  <style>
-    .loader {
-      border: 6px solid #f3f3f3;
-      border-top: 6px solid #fa7c28;
-      border-radius: 50%;
-      width: 50px;
-      height: 50px;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    textarea::-webkit-scrollbar {
-      width: 8px;
-    }
-    textarea::-webkit-scrollbar-thumb {
-      background-color: #fa7c28;
-      border-radius: 8px;
-    }
-  </style>
-
+   <link rel="stylesheet" href="styles.css">
   <!-- ✅ Add jsPDF library -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
@@ -40,7 +19,7 @@
   <div class="max-w-4xl mx-auto p-6 mt-10 bg-white dark:bg-gray-800 rounded-2xl shadow-lg">
     <div class="flex justify-between items-center mb-6">
       <div class="flex items-center gap-3">
-        <img src="https://courses.uit.edu.vn/pluginfile.php/1/core_admin/logocompact/300x300/1728025335/Logo_UIT_Web-218x261.png" alt="UIT Logo" class="h-10 w-auto">
+        <img src="/images/logo_uit.png" alt="UIT Logo" class="h-10 w-auto">
         <h2 class="text-2xl font-bold text-orange-500 dark:text-blue-500">Image to Text Converter</h2>
       </div>
       <button id="darkToggle" class="px-3 py-1 rounded bg-gray-200 dark:bg-gray-700 text-sm">Toggle Dark Mode</button>

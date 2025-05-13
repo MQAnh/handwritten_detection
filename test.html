@@ -31,6 +31,9 @@
       border-radius: 8px;
     }
   </style>
+
+  <!-- ✅ Add jsPDF library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100 transition-colors">
 
@@ -38,7 +41,6 @@
     <div class="flex justify-between items-center mb-6">
       <div class="flex items-center gap-3">
         <img src="https://courses.uit.edu.vn/pluginfile.php/1/core_admin/logocompact/300x300/1728025335/Logo_UIT_Web-218x261.png" alt="UIT Logo" class="h-10 w-auto">
-
         <h2 class="text-2xl font-bold text-orange-500 dark:text-blue-500">Image to Text Converter</h2>
       </div>
       <button id="darkToggle" class="px-3 py-1 rounded bg-gray-200 dark:bg-gray-700 text-sm">Toggle Dark Mode</button>
@@ -64,9 +66,10 @@
       <div>
         <label for="resultBox" class="block mb-2 font-medium">Output</label>
         <textarea id="resultBox" readonly class="w-full h-64 p-4 bg-gray-100 dark:bg-gray-900 border rounded resize-none text-sm"></textarea>
-        <button id="copyBtn" class="mt-2 w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded">
-          Copy to Clipboard
-        </button>
+        <button id="copyBtn" class="mt-2 w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded">Copy to Clipboard</button>
+
+        <!-- ✅ Download PDF Button -->
+        <button id="downloadPdfBtn" class="mt-2 w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded">Download as PDF</button>
       </div>
     </div>
 
@@ -75,12 +78,8 @@
 
     <!-- Action Buttons -->
     <div class="mt-6 flex flex-col sm:flex-row justify-center gap-4">
-      <button id="clearBtn" class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 py-2 px-6 rounded">
-        Clear
-      </button>
-      <button id="submitBtn" class="bg-orange-500 hover:bg-orange-600 text-white py-2 px-6 rounded">
-        Submit
-      </button>
+      <button id="clearBtn" class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 py-2 px-6 rounded">Clear</button>
+      <button id="submitBtn" class="bg-orange-500 hover:bg-orange-600 text-white py-2 px-6 rounded">Submit</button>
     </div>
   </div>
 
@@ -101,20 +100,18 @@
     const copyBtn = document.getElementById("copyBtn");
     const darkToggle = document.getElementById("darkToggle");
     const toast = document.getElementById("toast");
+    const downloadPdfBtn = document.getElementById("downloadPdfBtn");
 
-    // Toast
     function showToast(msg) {
       toast.textContent = msg;
       toast.classList.remove("hidden");
       setTimeout(() => toast.classList.add("hidden"), 2000);
     }
 
-    // Dark mode toggle
     darkToggle.addEventListener("click", () => {
       document.documentElement.classList.toggle("dark");
     });
 
-    // Drag and drop handlers
     dropZone.addEventListener("click", () => imageInput.click());
     dropZone.addEventListener("dragover", e => {
       e.preventDefault();
@@ -135,7 +132,6 @@
       }
     });
 
-    // File input change
     imageInput.addEventListener("change", () => {
       const file = imageInput.files[0];
       if (file) previewImage(file);
@@ -150,7 +146,6 @@
       reader.readAsDataURL(file);
     }
 
-    // Clear everything
     clearBtn.addEventListener("click", () => {
       imageInput.value = null;
       imagePreview.src = "";
@@ -158,7 +153,6 @@
       resultBox.value = "";
     });
 
-    // Copy result to clipboard
     copyBtn.addEventListener("click", async () => {
       try {
         await navigator.clipboard.writeText(resultBox.value);
@@ -169,7 +163,6 @@
       }
     });
 
-    // Submit
     submitBtn.addEventListener("click", async () => {
       const file = imageInput.files[0];
       if (!file) {
@@ -181,7 +174,7 @@
       resultBox.value = "";
 
       try {
-        const client = await Client.connect("MQAnh/DSAproject"); // Update if needed
+        const client = await Client.connect("MQAnh/DSAproject");
         const result = await client.predict("/predict", { image: file });
         resultBox.value = result.data;
       } catch (err) {
@@ -192,30 +185,30 @@
         loader.classList.add("hidden");
       }
     });
+
+    // ✅ Download as PDF feature
+    downloadPdfBtn.addEventListener("click", async () => {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      const text = resultBox.value || "No text to download.";
+      const lines = doc.splitTextToSize(text, 180); // wrap text to 180mm width
+      doc.text(lines, 10, 10); // 10mm margin
+      doc.save("ocr_result.pdf");
+    });
   </script>
 
   <!-- Footer -->
   <footer class="bg-gray-900 text-gray-100 py-6 mt-10">
     <div class="max-w-4xl mx-auto text-center">
-      <!-- Logo and Project Info -->
       <div class="mb-4">
         <p class="text-sm">Project by <strong>MQAnh</strong></p>
       </div>
-      
-      <!-- Social Media Links (optional) -->
       <div class="flex justify-center gap-4 mb-4">
-        <a href="#" target="_blank" class="text-blue-400 hover:text-blue-500 transition-colors">
-          <i class="fab fa-facebook-f"></i> <!-- Add Font Awesome icon -->
-        </a>
-        <a href="#" target="_blank" class="text-blue-400 hover:text-blue-500 transition-colors">
-          <i class="fab fa-twitter"></i> <!-- Add Font Awesome icon -->
-        </a>
-        <a href="#" target="_blank" class="text-blue-400 hover:text-blue-500 transition-colors">
-          <i class="fab fa-linkedin-in"></i> <!-- Add Font Awesome icon -->
-        </a>
+        <a href="#" target="_blank" class="text-blue-400 hover:text-blue-500 transition-colors"><i class="fab fa-facebook-f"></i></a>
+        <a href="#" target="_blank" class="text-blue-400 hover:text-blue-500 transition-colors"><i class="fab fa-twitter"></i></a>
+        <a href="#" target="_blank" class="text-blue-400 hover:text-blue-500 transition-colors"><i class="fab fa-linkedin-in"></i></a>
       </div>
-
-      <!-- Copyright Notice -->
       <p class="text-xs text-gray-400">© 2025 UIT. All rights reserved.</p>
     </div>
   </footer>

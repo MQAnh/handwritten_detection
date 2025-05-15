@@ -17,6 +17,7 @@
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-100 transition-colors">
 
+  <!--  Khai báo dòng chữ image to text converter kèm theo logo UIT  -->
   <div class="max-w-4xl mx-auto p-6 mt-10 bg-white dark:bg-gray-800 rounded-2xl shadow-lg">
     <div class="flex justify-between items-center mb-6">
       <div class="flex items-center gap-3">
@@ -28,7 +29,7 @@
 
     <p class="mb-6 text-center text-sm">Upload a handwritten or printed image to extract text using TrOCR.</p>
 
-    <!-- Upload Zone -->
+    <!-- Vùng Upload Ảnh -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
       <div>
         <label for="imageInput" class="block mb-2 font-medium">Upload Image</label>
@@ -42,18 +43,18 @@
         <img id="imagePreview" alt="Preview" class="mt-4 hidden rounded-lg shadow-lg transition-transform transform hover:scale-105 max-h-64 mx-auto" />
       </div>
 
-      <!-- Result -->
+      <!-- Vùng hiển thị kết quả -->
       <div>
         <label for="resultBox" class="block mb-2 font-medium">Output</label>
         <textarea id="resultBox" readonly class="w-full h-64 p-4 bg-gray-100 dark:bg-gray-900 border rounded resize-none text-sm"></textarea>
         <button id="copyBtn" class="mt-2 w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded">Copy to Clipboard</button>
 
-        <!-- ✅ Download PDF Button -->
+        <!-- Nút Download as PDF -->
         <button id="downloadPdfBtn" class="mt-2 w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded">Download as PDF</button>
       </div>
     </div>
 
-     <!-- Feedback Section -->
+     <!-- Vùng Feedback -->
     <div id="feedbackSection" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center">
       <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg max-w-md w-full">
         <h3 class="text-lg font-bold mb-4 text-gray-800 dark:text-gray-100">We value your feedback!</h3>
@@ -67,13 +68,13 @@
       </div>
     </div>
 
-    <!-- Feedback Button -->
+    <!-- Nút Feedback -->
     <button id="feedbackBtn" class="mt-2 w-full bg-blue-500 hover:bg-blue-600 text-white py-2 rounded hidden">Feedback</button>
 
     <!-- Loader -->
     <div id="loader" class="loader mt-6 hidden mx-auto"></div>
 
-    <!-- Action Buttons -->
+    <!-- Nút submit và nút clear -->
     <div class="mt-6 flex flex-col sm:flex-row justify-center gap-4">
       <button id="clearBtn" class="bg-gray-200 hover:bg-gray-300 dark:bg-gray-700 dark:hover:bg-gray-600 py-2 px-6 rounded">Clear</button>
       <button id="submitBtn" class="bg-orange-500 hover:bg-orange-600 text-white py-2 px-6 rounded">Submit</button>
@@ -83,7 +84,7 @@
   <!-- Toast -->
   <div id="toast" class="fixed bottom-5 right-5 bg-orange-500 text-white px-4 py-2 rounded-lg shadow-lg hidden transition-opacity"></div>
 
-  <!-- Script -->
+  <!-- Gọi file script.js -->
   <script type="module" src="script.js"></script>
   
 </body>
